@@ -13,19 +13,19 @@ export class UserService {
     return this.userRepository.deleteUserById(Id);
   }
 
-  async getUserByName(username: string, email: string) {
-    return this.userRepository.getUserByName(username, email);
+  async getUserByName(username: string) {
+    return this.userRepository.getUserByName(username);
   }
 
   async createUser(dto: RegisterDto) {
     return this.userRepository.createUser(dto);
   }
 
-  async findUserByEmail(email: string) {
-    return this.userRepository.findUserByEmail(email);
-  }
-
   async findUserByToken(token: string) {
     return this.userRepository.findUserByToken(token);
+  }
+
+  async getAllUsers() {
+    return this.userRepository.getAllUsers();
   }
 }

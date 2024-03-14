@@ -13,11 +13,6 @@ import { GUARDS } from './guards';
 @Module({
   providers: [AuthService, AuthRepository, ...STRATEGIES, ...GUARDS],
   controllers: [AuthController, AuthRepository],
-  imports: [
-    PassportModule,
-    JwtModule.registerAsync(options()),
-    UserModule,
-   // HttpModule,
-  ],
+  imports: [PassportModule, JwtModule.registerAsync(options()), UserModule],
 })
 export class AuthModule {}

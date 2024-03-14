@@ -25,7 +25,7 @@ export class AuthRepository {
   ) {}
   private readonly logger = new Logger(AuthService.name);
   async register(dto: RegisterDto) {
-    const user = await this.userService.getUserByName(dto.username, dto.email);
+    const user = await this.userService.getUserByName(dto.username);
 
     if (user) {
       throw new BadRequestException('This username or email is already in use');
@@ -38,7 +38,7 @@ export class AuthRepository {
 
   async login(dto: LoginDto): Promise<IToken> {
     const user = await this.userService
-      .findUserByEmail(dto.email)
+      .getUserByName(dto.username)
       .catch((err) => {
         this.logger.error(err);
         return null;
@@ -80,7 +80,6 @@ export class AuthRepository {
   private async generateTokens(user: IUser): Promise<IToken> {
     const accessToken = this.jwtService.sign({
       id: user.id,
-      email: user.email,
       username: user.username,
     });
 

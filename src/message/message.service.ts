@@ -13,4 +13,16 @@ export class MessageService {
   async getAllMessagesByRoom(id: string) {
     return this.messageRepository.getAllMessages(id);
   }
+
+  async findMessageById(id: string) {
+    return this.messageRepository.findMessageById(id);
+  }
+
+  deleteMessage(id: string) {
+    return this.messageRepository.deleteMessage(id);
+  }
+
+  editMessage(dto: { id: string; message: { text: string; roomId: string } }) {
+    return this.messageRepository.editMessage(dto);
+  }
 }

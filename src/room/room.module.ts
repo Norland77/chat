@@ -6,5 +6,6 @@ import { RoomRepository } from './room.repository';
 @Module({
   providers: [RoomService, RoomRepository],
   controllers: [RoomController, RoomRepository],
+  exports: [RoomService],
 })
 export class RoomModule {}

@@ -23,10 +23,10 @@ export class UserRepository {
     });
   }
 
-  getUserByName(username: string, email: string) {
+  getUserByName(username: string) {
     return this.prismaService.user.findFirst({
       where: {
-        AND: { username, email },
+        AND: { username },
       },
     });
   }
@@ -36,7 +36,6 @@ export class UserRepository {
     return this.prismaService.user.create({
       data: {
         username: dto.username,
-        email: dto.email,
         password: hashedPassword,
       },
     });
@@ -49,14 +48,6 @@ export class UserRepository {
     return hashSync(password, genSaltSync(10));
   }
 
-  findUserByEmail(email: string) {
-    return this.prismaService.user.findFirst({
-      where: {
-        email,
-      },
-    });
-  }
-
   findUserByToken(token: string) {
     return this.prismaService.token.findFirst({
       where: {
@@ -66,5 +57,9 @@ export class UserRepository {
         userId: true,
       },
     });
+  }
+
+  getAllUsers() {
+    return this.prismaService.user.findMany();
   }
 }
