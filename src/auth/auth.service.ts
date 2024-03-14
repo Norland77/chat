@@ -10,11 +10,11 @@ export class AuthService {
     return await this.authRepository.register(dto);
   }
 
-  login(dto: LoginDto) {
+  async login(dto: LoginDto) {
     return this.authRepository.login(dto);
   }
 
-  refreshtoken(refreshtoken: string) {
+  async refreshtoken(refreshtoken: string) {
     return this.authRepository.refreshtoken(refreshtoken);
   }
 

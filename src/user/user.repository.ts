@@ -1,13 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto';
-import { genSaltSync, hashSync } from 'bcrypt';
 
 @Controller('user')
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  findUserById(Id: string) {
+  async findUserById(Id: string) {
     return this.prismaService.user.findFirst({
       where: {
         id: Id,
@@ -15,7 +14,7 @@ export class UserRepository {
     });
   }
 
-  deleteUserById(Id: string) {
+  async deleteUserById(Id: string) {
     return this.prismaService.user.delete({
       where: {
         id: Id,
@@ -23,7 +22,7 @@ export class UserRepository {
     });
   }
 
-  getUserByName(username: string) {
+  async getUserByName(username: string) {
     return this.prismaService.user.findFirst({
       where: {
         AND: { username },
@@ -31,8 +30,7 @@ export class UserRepository {
     });
   }
 
-  createUser(dto: RegisterDto) {
-    const hashedPassword = this.hashPassword(dto.password);
+  async createUser(dto: RegisterDto, hashedPassword: string) {
     return this.prismaService.user.create({
       data: {
         username: dto.username,
@@ -41,14 +39,7 @@ export class UserRepository {
     });
   }
 
-  private hashPassword(password: string | undefined) {
-    if (!password) {
-      return '';
-    }
-    return hashSync(password, genSaltSync(10));
-  }
-
-  findUserByToken(token: string) {
+  async findUserByToken(token: string) {
     return this.prismaService.token.findFirst({
       where: {
         token,
@@ -59,7 +50,7 @@ export class UserRepository {
     });
   }
 
-  getAllUsers() {
+  async getAllUsers() {
     return this.prismaService.user.findMany();
   }
 }

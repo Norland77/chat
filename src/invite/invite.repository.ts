@@ -6,7 +6,7 @@ import { InviteDto } from './dto/invite.dto';
 export class InviteRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  findInviteByRoom(roomId: string) {
+  async findInviteByRoom(roomId: string) {
     return this.prismaService.inviteList.findFirst({
       where: {
         roomId,
@@ -14,7 +14,7 @@ export class InviteRepository {
     });
   }
 
-  createInvite(dto: InviteDto) {
+  async createInvite(dto: InviteDto) {
     return this.prismaService.inviteList.create({
       data: {
         roomId: dto.roomId,
@@ -24,18 +24,7 @@ export class InviteRepository {
     });
   }
 
-  declineInvite(id: string) {
-    return this.prismaService.inviteList.update({
-      where: {
-        id,
-      },
-      data: {
-        accept: false,
-      },
-    });
-  }
-
-  findRoomByToken(token: string) {
+  async findRoomByToken(token: string) {
     return this.prismaService.inviteList.findFirst({
       where: {
         token,

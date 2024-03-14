@@ -7,7 +7,7 @@ import { PersonalRoomDto } from './dto/personal-room.dto';
 export class RoomRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  findRoomByName(name: string) {
+  async findRoomByName(name: string) {
     return this.prismaService.room.findFirst({
       where: {
         name,
@@ -15,7 +15,7 @@ export class RoomRepository {
     });
   }
 
-  createRoom(dto: RoomDto) {
+  async createRoom(dto: RoomDto) {
     return this.prismaService.room.create({
       data: {
         name: dto.name,
@@ -30,7 +30,7 @@ export class RoomRepository {
     });
   }
 
-  findRoomById(id: string) {
+  async findRoomById(id: string) {
     return this.prismaService.room.findFirst({
       where: {
         id,
@@ -41,7 +41,7 @@ export class RoomRepository {
     });
   }
 
-  deleteRoom(id: string) {
+  async deleteRoom(id: string) {
     return this.prismaService.room.delete({
       where: {
         id,
@@ -49,7 +49,7 @@ export class RoomRepository {
     });
   }
 
-  getAllRooms() {
+  async getAllRooms() {
     return this.prismaService.room.findMany({
       include: {
         users: true,
@@ -62,7 +62,7 @@ export class RoomRepository {
     });
   }
 
-  addUserToRoom(roomId: string, userId: string) {
+  async addUserToRoom(roomId: string, userId: string) {
     console.log(userId);
     return this.prismaService.room.update({
       where: {
@@ -78,7 +78,7 @@ export class RoomRepository {
     });
   }
 
-  addInviteLink(inviteLink: string, roomId: string) {
+  async addInviteLink(inviteLink: string, roomId: string) {
     console.log(inviteLink);
     return this.prismaService.room.update({
       where: {
@@ -90,7 +90,7 @@ export class RoomRepository {
     });
   }
 
-  leaveRoom(roomId: string, userId: string) {
+  async leaveRoom(roomId: string, userId: string) {
     return this.prismaService.room.update({
       where: {
         id: roomId,
@@ -105,7 +105,7 @@ export class RoomRepository {
     });
   }
 
-  createPersonal(dto: PersonalRoomDto) {
+  async createPersonal(dto: PersonalRoomDto) {
     return this.prismaService.room.create({
       data: {
         name: dto.name,
