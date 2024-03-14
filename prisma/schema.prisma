@@ -13,6 +13,27 @@ model User {
   password String
   token    Token[]
   messages Messages[]
+  Room     Room[]
+}
+
+model Room {
+  id         String       @id @default(uuid())
+  name       String       @unique
+  messages   Messages[]
+  users      User[]
+  ownerId    String       @default("")
+  isPrivate  Boolean      @default(false)
+  isPersonal Boolean      @default(false)
+  InviteList InviteList[]
+  inviteLink String       @default("")
+}
+
+model InviteList {
+  id     String  @id @default(uuid())
+  room   Room    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId String
+  token  String
+  accept Boolean
 }
 
 model Token {
@@ -23,16 +44,24 @@ model Token {
 }
 
 model Messages {
-  id     String  @id @default(uuid())
-  text   String
-  User   User?   @relation(fields: [userId], references: [id])
-  userId String?
-  Room   Room?   @relation(fields: [roomId], references: [id])
-  roomId String?
+  id        String   @id @default(uuid())
+  text      String
+  files     File[]
+  username  String
+  User      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String?
+  Room      Room?    @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  roomId    String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
 }
 
-model Room {
-  id       String     @id @default(uuid())
-  name     String     @unique
-  messages Messages[]
+model File {
+  id         String    @id @default(uuid())
+  createdAt  DateTime  @default(now())
+  path       String
+  name       String
+  mimetype   String
+  Messages   Messages? @relation(fields: [messagesId], references: [id], onDelete: Cascade)
+  messagesId String?
 }
