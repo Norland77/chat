@@ -163,7 +163,8 @@ export class SocketService implements OnGatewayInit {
   }
 
   @SubscribeMessage('uploadChunk')
-  handleUploadChunk(@MessageBody() data: any): void {
+  async handleUploadChunk(@MessageBody() data: any): Promise<void> {
+    console.log(data);
     fullChunk = Buffer.concat([fullChunk, data]);
     console.log(fullChunk);
   }

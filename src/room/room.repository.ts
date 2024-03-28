@@ -30,7 +30,7 @@ export class RoomRepository {
     });
   }
 
-  findRoomById(id: string) {
+  async findRoomById(id: string) {
     return this.prismaService.room.findFirst({
       where: {
         id,

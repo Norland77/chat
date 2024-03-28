@@ -16,7 +16,7 @@ export class RoomService {
   }
 
   async findRoomById(id: string) {
-    return this.roomRepository.findRoomById(id);
+    return await this.roomRepository.findRoomById(id);
   }
 
   deleteRoom(id: string) {
