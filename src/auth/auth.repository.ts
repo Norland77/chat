@@ -50,7 +50,7 @@ export class AuthRepository {
     return this.generateTokens(user);
   }
 
-  logout(refreshtoken: string) {
+  async logout(refreshtoken: string) {
     return this.prismaService.token.delete({
       where: { token: refreshtoken },
     });

@@ -6,19 +6,15 @@ import { InviteDto } from './dto/invite.dto';
 export class InviteService {
   constructor(private readonly inviteRepository: InviteRepository) {}
 
-  findInviteByRoom(roomId: string) {
+  async findInviteByRoom(roomId: string) {
     return this.inviteRepository.findInviteByRoom(roomId);
   }
 
-  createInvite(dto: InviteDto) {
+  async createInvite(dto: InviteDto) {
     return this.inviteRepository.createInvite(dto);
   }
 
-  declineInvite(id: string) {
-    return this.inviteRepository.declineInvite(id);
-  }
-
-  findRoomByToken(token: string) {
+  async findRoomByToken(token: string) {
     return this.inviteRepository.findRoomByToken(token);
   }
 }

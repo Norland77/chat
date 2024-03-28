@@ -11,7 +11,7 @@ export class RoomService {
     return this.roomRepository.findRoomByName(name);
   }
 
-  createRoom(dto: RoomDto) {
+  async createRoom(dto: RoomDto) {
     return this.roomRepository.createRoom(dto);
   }
 
@@ -19,15 +19,15 @@ export class RoomService {
     return await this.roomRepository.findRoomById(id);
   }
 
-  deleteRoom(id: string) {
+  async deleteRoom(id: string) {
     return this.roomRepository.deleteRoom(id);
   }
 
-  getAllRooms() {
+  async getAllRooms() {
     return this.roomRepository.getAllRooms();
   }
 
-  addUserToRoom(roomId: string, userId: string) {
+  async addUserToRoom(roomId: string, userId: string) {
     return this.roomRepository.addUserToRoom(roomId, userId);
   }
 
@@ -35,11 +35,11 @@ export class RoomService {
     return this.roomRepository.addInviteLink(inviteLink, roomId);
   }
 
-  leaveRoom(roomId: string, userId: string) {
+  async leaveRoom(roomId: string, userId: string) {
     return this.roomRepository.leaveRoom(roomId, userId);
   }
 
-  createPersonal(dto: PersonalRoomDto) {
+  async createPersonal(dto: PersonalRoomDto) {
     return this.roomRepository.createPersonal(dto);
   }
 }

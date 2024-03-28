@@ -1,13 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { MessageRepository } from './message.repository';
-import { MessageDto } from './dto/message.dto';
+import { MessageDto } from './dto/createMessage.dto';
+import {IFile} from "./interfaces/IFile";
+import {EditMessageDto} from "./dto/editMessage.dto";
 
 @Injectable()
 export class MessageService {
   constructor(private readonly messageRepository: MessageRepository) {}
 
   async createMessage(dto: MessageDto) {
-    return this.messageRepository.createMessage(dto);
+    let filesInput: IFile[] = [{
+      name: '',
+      mimetype: '',
+      path: '',
+    }];
+    if (dto.files.length > 0) {
+      filesInput = dto.files.map((file) => ({
+        name: file.name,
+        path: file.path,
+        mimetype: file.mimetype,
+      }));
+    }
+
+    return this.messageRepository.createMessage(dto, filesInput);
   }
 
   async getAllMessagesByRoom(id: string) {
@@ -18,11 +33,11 @@ export class MessageService {
     return this.messageRepository.findMessageById(id);
   }
 
-  deleteMessage(id: string) {
+  async deleteMessage(id: string) {
     return this.messageRepository.deleteMessage(id);
   }
 
-  editMessage(dto: { id: string; message: { text: string; roomId: string } }) {
+  async editMessage(dto: EditMessageDto) {
     return this.messageRepository.editMessage(dto);
   }
 }

@@ -1,20 +1,12 @@
 import { Controller } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { MessageDto } from './dto/message.dto';
+import { MessageDto } from './dto/createMessage.dto';
+import {IFile} from "./interfaces/IFile";
 
 @Controller('message')
 export class MessageRepository {
   constructor(private readonly prismaService: PrismaService) {}
-  createMessage(dto: MessageDto) {
-    let filesInput = [];
-    console.log(dto);
-    if (dto.files.length > 0) {
-      filesInput = dto.files.map((file) => ({
-        name: file.name,
-        path: file.path,
-        mimetype: file.mimetype,
-      }));
-    }
+  async createMessage(dto: MessageDto, filesInput: IFile[]) {
     return this.prismaService.messages.create({
       data: {
         text: dto.text,
@@ -31,7 +23,7 @@ export class MessageRepository {
     });
   }
 
-  getAllMessages(id: string) {
+  async getAllMessages(id: string) {
     return this.prismaService.messages.findMany({
       where: {
         roomId: id,
@@ -45,7 +37,7 @@ export class MessageRepository {
     });
   }
 
-  findMessageById(id: string) {
+  async findMessageById(id: string) {
     return this.prismaService.messages.findFirst({
       where: {
         id,
@@ -53,7 +45,7 @@ export class MessageRepository {
     });
   }
 
-  deleteMessage(id: string) {
+  async deleteMessage(id: string) {
     return this.prismaService.messages.delete({
       where: {
         id,
@@ -64,10 +56,7 @@ export class MessageRepository {
     });
   }
 
-  editMessage(dto: { id: string; message: { text: string; roomId: string } }) {
-    //console.log(id)
-    console.log(dto.id);
-
+  async editMessage(dto: { id: string; message: { text: string; roomId: string } }) {
     return this.prismaService.messages.update({
       where: {
         id: dto.id,
