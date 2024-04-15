@@ -9,9 +9,11 @@ import {
 } from '@nestjs/common';
 import { InviteService } from './invite.service';
 import { InviteDto } from './dto/invite.dto';
-import { Cookie } from '../../libs/common/src/decorators';
 import { UserService } from '../user/user.service';
 import { RoomService } from '../room/room.service';
+import {IInvite} from "./interfaces/IInvite";
+import {IRoom} from "../room/interfaces/IRoom";
+import {IUser} from "../user/interfaces/IUser";
 const REFRESH_TOKEN = 'refreshtoken';
 @Controller('invite')
 export class InviteController {
@@ -22,29 +24,27 @@ export class InviteController {
   ) {}
 
   @Post('create')
-  async createInvite(@Body() dto: InviteDto) {
-    const invite = await this.inviteService.findInviteByRoom(dto.roomId);
+  async createInvite(@Body() dto: InviteDto): Promise<IInvite> {
+    const invite: IInvite = await this.inviteService.findInviteByRoom(dto.roomId);
 
     if (invite) {
       throw new BadRequestException(`invite for this room is already exist`);
     }
 
-    const inviteCreated = await this.inviteService.createInvite(dto);
+    const inviteCreated: IInvite = await this.inviteService.createInvite(dto);
 
     if (!inviteCreated) {
       throw new BadRequestException();
     }
 
-    console.log(dto);
-
-    const inviteLink = await this.roomService.addInviteLink(
+    const inviteLink: IRoom = await this.roomService.addInviteLink(
       dto.inviteLink,
       dto.roomId,
     );
     if (!inviteLink) {
       throw new BadRequestException();
     }
-    console.log(inviteLink);
+
     return inviteCreated;
   }
 
@@ -52,9 +52,8 @@ export class InviteController {
   async acceptInvite(
     @Param('RoomId') roomId: string,
     @Body() userId: { userId: string },
-  ) {
-    console.log(userId.userId);
-    const user = await this.userService.findUserById(userId.userId);
+  ): Promise<IRoom> {
+    const user: IUser = await this.userService.findUserById(userId.userId);
 
     if (!user) {
       throw new BadRequestException(
@@ -62,18 +61,18 @@ export class InviteController {
       );
     }
 
-    const room = await this.roomService.findRoomById(roomId);
+    const room: IRoom = await this.roomService.findRoomById(roomId);
 
     if (!room) {
       throw new BadRequestException(`room with id: ${roomId} is not exist`);
     }
 
-    return this.roomService.addUserToRoom(roomId, user.id);
+    return await this.roomService.addUserToRoom(roomId, user.id);
   }
 
   @Get('token/:Token')
-  async getRoomByToken(@Param('Token') token: string) {
-    const room = this.inviteService.findRoomByToken(token);
+  async getRoomByToken(@Param('Token') token: string): Promise<IInvite> {
+    const room: IInvite = await this.inviteService.findRoomByToken(token);
 
     if (!room) {
       throw new BadRequestException(`room with token: ${token} is not exist`);

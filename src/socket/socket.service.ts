@@ -6,16 +6,18 @@ import {
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
-import { MessageService } from '../message/message.service';
-import { Logger } from '@nestjs/common';
-import { Server, Socket } from 'socket.io';
-import { S3 } from 'aws-sdk';
-import { ConfigService } from '@nestjs/config';
-import { v4 as uuid } from 'uuid';
+import {MessageService} from '../message/message.service';
+import {Logger} from '@nestjs/common';
+import {Namespace, Server, Socket} from 'socket.io';
+import {S3} from 'aws-sdk';
+import {ConfigService} from '@nestjs/config';
+import {IMessage} from "../message/interfaces/IMessage";
+import {IFile} from "../message/interfaces/IFile";
+import {MessageDeleteDto} from "../message/dto/message-delete.dto";
+import {DefaultEventsMap} from "socket.io/dist/typed-events";
 
 let fullChunk: Buffer = Buffer.alloc(0);
-let info;
-let isFile = false;
+
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketService implements OnGatewayInit {
   constructor(
@@ -35,50 +37,42 @@ export class SocketService implements OnGatewayInit {
     console.log('Connected');
   }
 
-  async uploadPublicFile(dataBuffer: Buffer, filename: string, userId: string) {
+  async uploadPublicFile(dataBuffer: Buffer, filename: string, userId: string, filetype): Promise<S3.ManagedUpload.SendData> {
     const s3 = new S3();
 
-    const uploadResult = await s3
+    return await s3
       .upload({
         Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
         Body: dataBuffer,
-        Key: `${userId}/${filename}`,
+        Key: `${userId}/${filetype}/${filename}`,
       })
       .promise();
-
-    return uploadResult;
   }
 
   @SubscribeMessage('chatToServer')
   async handleMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody()
-    message: {
-      text: string;
-      roomId: string;
-      userId: string;
-      username: string;
-      createdAt: Date;
-      updatedAt: Date;
-    },
+    @MessageBody() message: IMessage,
   ) {
-    let results;
-    if (isFile) {
-      results = await this.uploadPublicFile(
-        fullChunk,
-        info.name,
-        message.userId,
-      );
+    let results: IFile[] = [];
+    if (message.files.length > 0) {
+      for (const fileInfo of message.files) {
+        const uploadResult: S3.ManagedUpload.SendData = await this.uploadPublicFile(
+          fullChunk,
+          fileInfo.name,
+          message.userId,
+          fileInfo.mimetype
+        );
+        results.push({ path: uploadResult.Location, name: fileInfo.name, mimetype: fileInfo.mimetype });
+      }
     }
 
-    const createdMessage = await this.messageService.createMessage({
+    const createdMessage: IMessage = await this.messageService.createMessage({
       text: message.text,
       username: message.username,
       roomId: message.roomId,
       userId: message.userId,
-      files: isFile
-        ? [{ path: results.Location, name: info.name, mimetype: info.type }]
-        : [],
+      files: results,
     });
 
     console.log(createdMessage);
@@ -89,21 +83,21 @@ export class SocketService implements OnGatewayInit {
   @SubscribeMessage('chatToServerDelete')
   async handleDeleteMessage(
     @ConnectedSocket() client: Socket,
-    @MessageBody() { id, roomId }: { id: string; roomId: string },
+    @MessageBody() dto: MessageDeleteDto,
   ) {
-    const s3 = new S3();
-    const deleteMessage = await this.messageService.deleteMessage(id);
+    const s3: S3 = new S3();
+    const deleteMessage: IMessage = await this.messageService.deleteMessage(dto.id);
     if (deleteMessage) {
-      deleteMessage.files.map(async (file) => {
+      deleteMessage.files.map(async (file: IFile): Promise<void> => {
         await s3
           .deleteObject({
             Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
-            Key: `${deleteMessage.userId}/${file.name}`,
+            Key: `${deleteMessage.userId}/${file.mimetype}/${file.name}`,
           })
           .promise();
       });
     }
-    this.wss.to(roomId).emit('chatToClientDelete', id);
+    this.wss.to(dto.roomId).emit('chatToClientDelete', dto.id);
   }
 
   @SubscribeMessage('chatToServerUpdate')
@@ -114,7 +108,7 @@ export class SocketService implements OnGatewayInit {
       id: string;
       message: { text: string; roomId: string };
     },
-  ) {
+  ): Promise<void> {
     await this.messageService.editMessage(message);
     this.wss.to(message.message.roomId).emit('chatToClientUpdate', message);
   }
@@ -123,12 +117,12 @@ export class SocketService implements OnGatewayInit {
   handleUsersInRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() roomId: { roomId: string },
-  ) {
-    const namespace = this.wss.of('/');
-    const rooms = namespace.adapter.rooms;
-    const room = rooms.get(roomId.roomId);
+  ): void {
+    const namespace: Namespace<DefaultEventsMap, any> = this.wss.of('/');
+    const rooms: Map<string, Set<string>> = namespace.adapter.rooms;
+    const room: Set<string> = rooms.get(roomId.roomId);
     if (room) {
-      const userCount = room.size;
+      const userCount: number = room.size;
       this.wss.to(roomId.roomId).emit('UsersInRoom', userCount);
     } else {
       this.wss.to(roomId.roomId).emit('UsersInRoom', 0);
@@ -136,20 +130,19 @@ export class SocketService implements OnGatewayInit {
   }
 
   @SubscribeMessage('joinRoom')
-  handleRoomJoin(client: Socket, room: string) {
+  handleRoomJoin(client: Socket, room: string): void {
     client.join(room);
     client.emit('joinedRoom', room);
   }
 
   @SubscribeMessage('leaveRoom')
-  handleRoomLeft(client: Socket, room: string) {
+  handleRoomLeft(client: Socket, room: string): void {
     client.leave(room);
     client.emit('leftRoom', room);
   }
 
   @SubscribeMessage('kickUser')
-  handleRoomKick(client: Socket, @MessageBody() roomId: { roomId: string }) {
-    console.log('Kick');
+  handleRoomKick(client: Socket, @MessageBody() roomId: { roomId: string }): void {
     this.wss.to(roomId.roomId).emit('kickedUser');
   }
 
@@ -157,22 +150,13 @@ export class SocketService implements OnGatewayInit {
   handleRoomAddUserToChat(
     client: Socket,
     @MessageBody() roomId: { roomId: string },
-  ) {
-    console.log('Add');
+  ): void {
     this.wss.to(roomId.roomId).emit('userAdd');
   }
 
   @SubscribeMessage('uploadChunk')
   async handleUploadChunk(@MessageBody() data: any): Promise<void> {
-    console.log(data);
     fullChunk = Buffer.concat([fullChunk, data]);
     console.log(fullChunk);
-  }
-
-  @SubscribeMessage('sendFileInfo')
-  handleUploadInfo(@MessageBody() data: any): void {
-    console.log('info:', data);
-    isFile = true;
-    info = data;
   }
 }

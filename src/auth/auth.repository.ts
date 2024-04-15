@@ -15,6 +15,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { v4 } from 'uuid';
 import { add } from 'date-fns';
 import { IUser } from './interfaces/IUser';
+import {ITokenLogout} from "./interfaces/ITokenLogout";
 
 @Controller('user')
 export class AuthRepository {
@@ -24,13 +25,13 @@ export class AuthRepository {
     private readonly prismaService: PrismaService,
   ) {}
   private readonly logger = new Logger(AuthService.name);
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto): Promise<IUser> {
     const user = await this.userService.getUserByName(dto.username);
 
     if (user) {
       throw new BadRequestException('This username or email is already in use');
     }
-    return this.userService.createUser(dto).catch((err) => {
+    return await this.userService.createUser(dto).catch((err) => {
       this.logger.error(err);
       return null;
     });
@@ -47,11 +48,11 @@ export class AuthRepository {
     if (!user || !compareSync(dto.password, user.password)) {
       throw new UnauthorizedException('Wrong login or password');
     }
-    return this.generateTokens(user);
+    return await this.generateTokens(user);
   }
 
-  async logout(refreshtoken: string) {
-    return this.prismaService.token.delete({
+  async logout(refreshtoken: string): Promise<ITokenLogout> {
+    return await this.prismaService.token.delete({
       where: { token: refreshtoken },
     });
   }
@@ -74,7 +75,7 @@ export class AuthRepository {
     if (!user) {
       throw new UnauthorizedException();
     }
-    return this.generateTokens(user);
+    return await this.generateTokens(user);
   }
 
   private async generateTokens(user: IUser): Promise<IToken> {
@@ -95,7 +96,7 @@ export class AuthRepository {
       },
     });
     const token = _token?.token ?? '';
-    return this.prismaService.token.upsert({
+    return await this.prismaService.token.upsert({
       where: { token },
       update: {
         token: v4(),

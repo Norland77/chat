@@ -1,4 +1,4 @@
-export class EditMessageDto {
+export class MessageEditDto {
   id: string
   message: IMessage
 }

@@ -1,13 +1,15 @@
 import { Controller } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { MessageDto } from './dto/createMessage.dto';
+import { MessageDto } from './dto/message-create.dto';
 import {IFile} from "./interfaces/IFile";
+import {IMessage} from "./interfaces/IMessage";
+import {MessageEditDto} from "./dto/message-edit.dto";
 
 @Controller('message')
 export class MessageRepository {
   constructor(private readonly prismaService: PrismaService) {}
-  async createMessage(dto: MessageDto, filesInput: IFile[]) {
-    return this.prismaService.messages.create({
+  async createMessage(dto: MessageDto, filesInput: IFile[]): Promise<IMessage> {
+    return await this.prismaService.messages.create({
       data: {
         text: dto.text,
         userId: dto.userId,
@@ -23,8 +25,8 @@ export class MessageRepository {
     });
   }
 
-  async getAllMessages(id: string) {
-    return this.prismaService.messages.findMany({
+  async getAllMessages(id: string): Promise<IMessage[]> {
+    return await this.prismaService.messages.findMany({
       where: {
         roomId: id,
       },
@@ -37,16 +39,16 @@ export class MessageRepository {
     });
   }
 
-  async findMessageById(id: string) {
-    return this.prismaService.messages.findFirst({
+  async findMessageById(id: string): Promise<IMessage> {
+    return await this.prismaService.messages.findFirst({
       where: {
         id,
       },
     });
   }
 
-  async deleteMessage(id: string) {
-    return this.prismaService.messages.delete({
+  async deleteMessage(id: string): Promise<IMessage> {
+    return await this.prismaService.messages.delete({
       where: {
         id,
       },
@@ -56,8 +58,8 @@ export class MessageRepository {
     });
   }
 
-  async editMessage(dto: { id: string; message: { text: string; roomId: string } }) {
-    return this.prismaService.messages.update({
+  async editMessage(dto: MessageEditDto): Promise<IMessage> {
+    return await this.prismaService.messages.update({
       where: {
         id: dto.id,
       },

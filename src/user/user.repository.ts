@@ -1,37 +1,38 @@
 import { Controller } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto';
+import {IUser} from "./interfaces/IUser";
 
 @Controller('user')
 export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findUserById(Id: string) {
-    return this.prismaService.user.findFirst({
+  async findUserById(Id: string): Promise<IUser> {
+    return await this.prismaService.user.findFirst({
       where: {
         id: Id,
       },
     });
   }
 
-  async deleteUserById(Id: string) {
-    return this.prismaService.user.delete({
+  async deleteUserById(Id: string): Promise<IUser> {
+    return await this.prismaService.user.delete({
       where: {
         id: Id,
       },
     });
   }
 
-  async getUserByName(username: string) {
-    return this.prismaService.user.findFirst({
+  async getUserByName(username: string): Promise<IUser> {
+    return await this.prismaService.user.findFirst({
       where: {
         AND: { username },
       },
     });
   }
 
-  async createUser(dto: RegisterDto, hashedPassword: string) {
-    return this.prismaService.user.create({
+  async createUser(dto: RegisterDto, hashedPassword: string): Promise<IUser> {
+    return await this.prismaService.user.create({
       data: {
         username: dto.username,
         password: hashedPassword,
@@ -39,18 +40,7 @@ export class UserRepository {
     });
   }
 
-  async findUserByToken(token: string) {
-    return this.prismaService.token.findFirst({
-      where: {
-        token,
-      },
-      select: {
-        userId: true,
-      },
-    });
-  }
-
-  async getAllUsers() {
-    return this.prismaService.user.findMany();
+  async getAllUsers(): Promise<IUser[]> {
+    return await this.prismaService.user.findMany();
   }
 }

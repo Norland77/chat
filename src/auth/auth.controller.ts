@@ -16,6 +16,7 @@ import { IToken } from './interfaces';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import { Cookie, Public } from '../../libs/common/src/decorators';
+import {IUser} from "../user/interfaces/IUser";
 
 const REFRESH_TOKEN = 'refreshtoken';
 
@@ -29,8 +30,8 @@ export class AuthController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
-  async register(@Body() dto: RegisterDto) {
-    const user = await this.authService.register(dto);
+  async register(@Body() dto: RegisterDto): Promise<IUser> {
+    const user: IUser = await this.authService.register(dto);
     if (!user) {
       throw new BadRequestException(
         `Can't register user with data ${JSON.stringify(dto)}`,
@@ -41,8 +42,8 @@ export class AuthController {
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res() res: Response) {
-    const token = await this.authService.login(dto);
+  async login(@Body() dto: LoginDto, @Res() res: Response): Promise<void> {
+    const token: IToken = await this.authService.login(dto);
     if (!token) {
       throw new BadRequestException(
         `Can't login user with data ${JSON.stringify(dto)}`,
@@ -55,7 +56,7 @@ export class AuthController {
   async logout(
     @Cookie(REFRESH_TOKEN) refreshtoken: string,
     @Res() res: Response,
-  ) {
+  ): Promise<void> {
     if (!refreshtoken) {
       res.sendStatus(HttpStatus.OK);
       return;
@@ -73,18 +74,18 @@ export class AuthController {
   async refreshtoken(
     @Cookie(REFRESH_TOKEN) refreshtoken: string,
     @Res() res: Response,
-  ) {
+  ): Promise<void> {
     const string = '';
     if (typeof refreshtoken !== typeof string) {
       throw new UnauthorizedException();
     }
 
-    const token = await this.authService.refreshtoken(refreshtoken);
+    const token: IToken = await this.authService.refreshtoken(refreshtoken);
 
     this.setRefreshTokenToCookies(token, res);
   }
 
-  private setRefreshTokenToCookies(tokens: IToken, res: Response) {
+  private setRefreshTokenToCookies(tokens: IToken, res: Response): void {
     if (!tokens) {
       throw new UnauthorizedException();
     }

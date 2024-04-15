@@ -2,40 +2,37 @@ import { Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { RegisterDto } from '../auth/dto';
 import { genSaltSync, hashSync } from 'bcrypt';
+import {IUser} from "./interfaces/IUser";
 
 @Injectable()
 export class UserService {
   constructor(private readonly userRepository: UserRepository) {}
-  async findUserById(Id: string) {
-    return this.userRepository.findUserById(Id);
+  async findUserById(Id: string): Promise<IUser> {
+    return await this.userRepository.findUserById(Id);
   }
 
-  async deleteUserById(Id: string) {
-    return this.userRepository.deleteUserById(Id);
+  async deleteUserById(Id: string): Promise<IUser> {
+    return await this.userRepository.deleteUserById(Id);
   }
 
-  async getUserByName(username: string) {
-    return this.userRepository.getUserByName(username);
+  async getUserByName(username: string): Promise<IUser> {
+    return await this.userRepository.getUserByName(username);
   }
 
-  private hashPassword(password: string | undefined) {
+  private async hashPassword(password: string | undefined): Promise<string> {
     if (!password) {
       return '';
     }
-    return hashSync(password, genSaltSync(10));
+    return await hashSync(password, genSaltSync(10));
   }
 
-  async createUser(dto: RegisterDto) {
-    const hashedPassword = this.hashPassword(dto.password);
+  async createUser(dto: RegisterDto): Promise<IUser> {
+    const hashedPassword: string = await this.hashPassword(dto.password);
 
-    return this.userRepository.createUser(dto, hashedPassword);
+    return await this.userRepository.createUser(dto, hashedPassword);
   }
 
-  async findUserByToken(token: string) {
-    return this.userRepository.findUserByToken(token);
-  }
-
-  async getAllUsers() {
-    return this.userRepository.getAllUsers();
+  async getAllUsers(): Promise<IUser[]> {
+    return await this.userRepository.getAllUsers();
   }
 }
