@@ -1,95 +1,34 @@
-import {
-  BadRequestException,
-  Controller,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { LoginDto, RegisterDto } from './dto';
-import { UserService } from '../user/user.service';
-import { AuthService } from './auth.service';
-import { IToken } from './interfaces';
+import { Controller } from '@nestjs/common';
 import { Token } from '@prisma/client';
-import { compareSync } from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma/prisma.service';
 import { v4 } from 'uuid';
 import { add } from 'date-fns';
-import { IUser } from './interfaces/IUser';
-import {ITokenLogout} from "./interfaces/ITokenLogout";
+import {IToken} from "./interfaces/IToken";
+import {IAuthRepository} from "./interfaces/auth.repository.interface";
 
 @Controller('user')
-export class AuthRepository {
-  constructor(
-    private readonly userService: UserService,
-    private readonly jwtService: JwtService,
-    private readonly prismaService: PrismaService,
-  ) {}
-  private readonly logger = new Logger(AuthService.name);
-  async register(dto: RegisterDto): Promise<IUser> {
-    const user = await this.userService.getUserByName(dto.username);
+export class AuthRepository implements IAuthRepository{
+  constructor( private readonly prismaService: PrismaService ) {}
 
-    if (user) {
-      throw new BadRequestException('This username or email is already in use');
-    }
-    return this.userService.createUser(dto).catch((err) => {
-      this.logger.error(err);
-      return null;
-    });
-  }
-
-  async login(dto: LoginDto): Promise<IToken> {
-    const user = await this.userService
-      .getUserByName(dto.username)
-      .catch((err) => {
-        this.logger.error(err);
-        return null;
-      });
-
-    if (!user || !compareSync(dto.password, user.password)) {
-      throw new UnauthorizedException('Wrong login or password');
-    }
-    return this.generateTokens(user);
-  }
-
-  async logout(refreshtoken: string): Promise<ITokenLogout> {
+  async logout(refreshToken: string): Promise<IToken> {
     return this.prismaService.token.delete({
-      where: { token: refreshtoken },
+      where: { token: refreshToken },
     });
   }
 
-  async refreshtoken(refreshtoken: string): Promise<IToken> {
-    const token = await this.prismaService.token.findUnique({
-      where: { token: refreshtoken },
+  async findToken(refreshToken: string): Promise<IToken | null> {
+    return this.prismaService.token.findUnique({
+      where: { token: refreshToken },
     });
-    if (!token) {
-      throw new UnauthorizedException();
-    }
-    await this.prismaService.token.delete({
-      where: { token: refreshtoken },
-    });
-    if (new Date(token.exp) < new Date()) {
-      throw new UnauthorizedException();
-    }
-    const user = await this.userService.findUserById(token.userId);
-
-    if (!user) {
-      throw new UnauthorizedException();
-    }
-    return this.generateTokens(user);
   }
 
-  private async generateTokens(user: IUser): Promise<IToken> {
-    const accessToken = this.jwtService.sign({
-      id: user.id,
-      username: user.username,
+  async deleteToken(refreshToken: string): Promise<IToken> {
+    return this.prismaService.token.delete({
+      where: { token: refreshToken },
     });
-
-    const refreshtoken = await this.getRefreshtoken(user.id);
-
-    return { accessToken, refreshtoken };
   }
 
-  private async getRefreshtoken(userId: string): Promise<Token> {
+  async getRefreshToken(userId: string): Promise<Token> {
     const _token = await this.prismaService.token.findFirst({
       where: {
         userId,

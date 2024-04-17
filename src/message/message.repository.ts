@@ -4,9 +4,10 @@ import { MessageDto } from './dto/message-create.dto';
 import {IFile} from "./interfaces/IFile";
 import {IMessage} from "./interfaces/IMessage";
 import {MessageEditDto} from "./dto/message-edit.dto";
+import {IMessageRepository} from "./interfaces/message.repository.interface";
 
 @Controller('message')
-export class MessageRepository {
+export class MessageRepository implements IMessageRepository{
   constructor(private readonly prismaService: PrismaService) {}
   async createMessage(dto: MessageDto, filesInput: IFile[]): Promise<IMessage> {
     return this.prismaService.messages.create({
@@ -25,7 +26,7 @@ export class MessageRepository {
     });
   }
 
-  async getAllMessages(id: string): Promise<IMessage[]> {
+  async getAllMessages(id: string): Promise<IMessage[] | []> {
     return this.prismaService.messages.findMany({
       where: {
         roomId: id,
@@ -39,7 +40,7 @@ export class MessageRepository {
     });
   }
 
-  async findMessageById(id: string): Promise<IMessage> {
+  async findMessageById(id: string): Promise<IMessage | null> {
     return this.prismaService.messages.findFirst({
       where: {
         id,

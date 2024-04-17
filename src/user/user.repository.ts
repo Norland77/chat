@@ -2,12 +2,13 @@ import { Controller } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto';
 import {IUser} from "./interfaces/IUser";
+import {IUserRepository} from "./interfaces/user.repository.interface";
 
 @Controller('user')
-export class UserRepository {
+export class UserRepository implements IUserRepository{
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findUserById(Id: string): Promise<IUser> {
+  async findUserById(Id: string): Promise<IUser | null> {
     return this.prismaService.user.findFirst({
       where: {
         id: Id,
@@ -23,7 +24,7 @@ export class UserRepository {
     });
   }
 
-  async getUserByName(username: string) {
+  async getUserByName(username: string): Promise<IUser | null> {
     return this.prismaService.user.findFirst({
       where: {
         AND: {username},
@@ -40,7 +41,7 @@ export class UserRepository {
     });
   }
 
-  async getAllUsers(): Promise<IUser[]> {
+  async getAllUsers(): Promise<IUser[] | []> {
     return this.prismaService.user.findMany();
   }
 }

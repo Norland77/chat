@@ -1,9 +1,10 @@
 import { Controller, Delete, Get, Param } from '@nestjs/common';
 import { UserService } from './user.service';
 import {IUser} from "./interfaces/IUser";
+import {IUserController} from "./interfaces/user.controller.interface";
 
 @Controller('user')
-export class UserController {
+export class UserController implements IUserController {
   constructor(private readonly userService: UserService) {}
 
   @Get('all')

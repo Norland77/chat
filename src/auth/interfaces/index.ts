@@ -1,2 +1,2 @@
-export * from './IToken';
+export * from './ITokens';
 export * from './IJwtPayload';

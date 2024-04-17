@@ -1,6 +1,5 @@
-import { Token } from '@prisma/client';
-
 export interface IToken {
-  accessToken: string;
-  refreshtoken: Token;
+  token: string;
+  exp: Date;
+  userId: string;
 }

@@ -3,12 +3,13 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RoomCreateDto } from './dto/room-create.dto';
 import {IRoom} from "./interfaces/IRoom";
 import {IAllRooms} from "./interfaces/IAllRooms";
+import {IRoomRepository} from "./interfaces/room.repository.interface";
 
 @Controller('room')
-export class RoomRepository {
+export class RoomRepository implements IRoomRepository{
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findRoomByName(name: string): Promise<IRoom> {
+  async findRoomByName(name: string): Promise<IRoom | null> {
     return this.prismaService.room.findFirst({
       where: {
         name,
@@ -31,7 +32,7 @@ export class RoomRepository {
     });
   }
 
-  async findRoomById(id: string): Promise<IRoom> {
+  async findRoomById(id: string): Promise<IRoom | null> {
     return this.prismaService.room.findFirst({
       where: {
         id,
@@ -50,7 +51,7 @@ export class RoomRepository {
     });
   }
 
-  async getAllRooms(): Promise<IAllRooms[]> {
+  async getAllRooms(): Promise<IAllRooms[] | []> {
     return this.prismaService.room.findMany({
       include: {
         users: true,

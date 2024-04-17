@@ -2,12 +2,13 @@ import { Controller } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { InviteDto } from './dto/invite.dto';
 import {IInvite} from "./interfaces/IInvite";
+import {IInviteRepository} from "./interfaces/invite.repository.interface";
 
 @Controller('invite')
-export class InviteRepository {
+export class InviteRepository implements IInviteRepository{
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findInviteByRoom(roomId: string): Promise<IInvite> {
+  async findInviteByRoom(roomId: string): Promise<IInvite | null> {
     return this.prismaService.inviteList.findFirst({
       where: {
         roomId,
@@ -25,7 +26,7 @@ export class InviteRepository {
     });
   }
 
-  async findRoomByToken(token: string): Promise<IInvite> {
+  async findRoomByToken(token: string): Promise<IInvite | null> {
     return this.prismaService.inviteList.findFirst({
       where: {
         token,

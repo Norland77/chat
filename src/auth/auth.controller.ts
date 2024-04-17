@@ -10,59 +10,67 @@ import {
   UnauthorizedException,
   UseInterceptors,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { LoginDto, RegisterDto } from './dto';
-import { IToken } from './interfaces';
-import { ConfigService } from '@nestjs/config';
-import { Response } from 'express';
-import { Cookie, Public } from '../../libs/common/src/decorators';
+import {AuthService} from './auth.service';
+import {LoginDto, RegisterDto} from './dto';
+import {ITokens} from './interfaces';
+import {ConfigService} from '@nestjs/config';
+import {Response} from 'express';
+import {Cookie, Public} from '../../libs/common/src/decorators';
 import {IUser} from "../user/interfaces/IUser";
+import {UserService} from "../user/user.service";
+import {compareSync} from "bcrypt";
+import {IToken} from "./interfaces/IToken";
+import {IAuthController} from "./interfaces/auth.controller.interface";
 
-const REFRESH_TOKEN = 'refreshtoken';
-
+const REFRESH_TOKEN = 'refreshtoken111'
 @Public()
 @Controller('auth')
-export class AuthController {
+export class AuthController implements IAuthController{
   constructor(
     private readonly authService: AuthService,
+    private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {}
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
   async register(@Body() dto: RegisterDto): Promise<IUser> {
-    const user: IUser = await this.authService.register(dto);
-    if (!user) {
-      throw new BadRequestException(
-        `Can't register user with data ${JSON.stringify(dto)}`,
-      );
+    const userName = await this.userService.getUserByName(dto.username);
+
+    if (userName) {
+      throw new BadRequestException('This username or email is already in use');
     }
-    return user;
+
+    return await this.userService.createUser(dto)
   }
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res() res: Response): Promise<void> {
-    const token: IToken = await this.authService.login(dto);
-    if (!token) {
-      throw new BadRequestException(
-        `Can't login user with data ${JSON.stringify(dto)}`,
-      );
+  async login(@Body() dto: LoginDto, @Res() res: Response): Promise<ITokens> {
+    const user = await this.userService.getUserByName(dto.username)
+
+    if (!user || !compareSync(dto.password, user.password)) {
+      throw new UnauthorizedException('Wrong login or password');
     }
-    this.setRefreshTokenToCookies(token, res);
+
+    const token: ITokens = await this.authService.login(user);
+
+    await this.authService.setRefreshTokenToCookies(token, res);
+
+    return token;
   }
 
   @Get('logout')
   async logout(
-    @Cookie(REFRESH_TOKEN) refreshtoken: string,
+    @Cookie(REFRESH_TOKEN) refreshToken: string,
     @Res() res: Response,
   ): Promise<void> {
-    if (!refreshtoken) {
+    if (!refreshToken) {
       res.sendStatus(HttpStatus.OK);
       return;
     }
-    await this.authService.logout(refreshtoken);
-    res.cookie(REFRESH_TOKEN, '', {
+    await this.authService.logout(refreshToken);
+    res.cookie(this.configService.get('REFRESH_TOKEN'), '', {
       httpOnly: true,
       secure: true,
       expires: new Date(),
@@ -71,32 +79,19 @@ export class AuthController {
   }
 
   @Get('refresh-tokens')
-  async refreshtoken(
-    @Cookie(REFRESH_TOKEN) refreshtoken: string,
+  async refreshToken(
+    @Cookie(REFRESH_TOKEN) refreshToken: string,
     @Res() res: Response,
-  ): Promise<void> {
-    const string = '';
-    if (typeof refreshtoken !== typeof string) {
-      throw new UnauthorizedException();
-    }
+  ): Promise<IToken> {
 
-    const token: IToken = await this.authService.refreshtoken(refreshtoken);
+    const token: IToken = await this.authService.refreshToken(refreshToken);
 
-    this.setRefreshTokenToCookies(token, res);
-  }
+    const user = await this.userService.findUserById(token.userId);
 
-  private setRefreshTokenToCookies(tokens: IToken, res: Response): void {
-    if (!tokens) {
-      throw new UnauthorizedException();
-    }
-    res.cookie(REFRESH_TOKEN, tokens.refreshtoken.token, {
-      httpOnly: true,
-      sameSite: 'lax',
-      expires: new Date(tokens.refreshtoken.exp),
-      secure:
-        this.configService.get('NODE_ENV', 'development') === 'production',
-      path: '/',
-    });
-    res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
+    const tokenToCookies = await this.authService.refresh(user, token)
+
+    await this.authService.setRefreshTokenToCookies(tokenToCookies, res);
+
+    return token;
   }
 }

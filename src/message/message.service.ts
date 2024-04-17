@@ -1,12 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import {BadRequestException, Injectable} from '@nestjs/common';
 import { MessageRepository } from './message.repository';
 import { MessageDto } from './dto/message-create.dto';
 import {IFile} from "./interfaces/IFile";
 import {MessageEditDto} from "./dto/message-edit.dto";
 import {IMessage} from "./interfaces/IMessage";
+import {IMessageService} from "./interfaces/message.service.interface";
 
 @Injectable()
-export class MessageService {
+export class MessageService implements IMessageService{
   constructor(private readonly messageRepository: MessageRepository) {}
 
   async createMessage(dto: MessageDto): Promise<IMessage> {
@@ -30,8 +31,12 @@ export class MessageService {
     return this.messageRepository.getAllMessages(id);
   }
 
-  async findMessageById(id: string): Promise<IMessage> {
-    return this.messageRepository.findMessageById(id);
+  async findMessageById(id: string): Promise<void> {
+    const message = await this.messageRepository.findMessageById(id);
+
+    if (!message) {
+      throw new BadRequestException(`message with id: ${id} is not exist`);
+    }
   }
 
   async deleteMessage(id: string): Promise<IMessage> {
