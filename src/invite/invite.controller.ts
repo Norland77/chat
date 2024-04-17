@@ -67,7 +67,7 @@ export class InviteController {
       throw new BadRequestException(`room with id: ${roomId} is not exist`);
     }
 
-    return await this.roomService.addUserToRoom(roomId, user.id);
+    return this.roomService.addUserToRoom(roomId, user.id);
   }
 
   @Get('token/:Token')

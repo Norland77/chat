@@ -8,14 +8,14 @@ export class InviteService {
   constructor(private readonly inviteRepository: InviteRepository) {}
 
   async findInviteByRoom(roomId: string): Promise<IInvite> {
-    return await this.inviteRepository.findInviteByRoom(roomId);
+    return this.inviteRepository.findInviteByRoom(roomId);
   }
 
   async createInvite(dto: InviteDto): Promise<IInvite> {
-    return await this.inviteRepository.createInvite(dto);
+    return this.inviteRepository.createInvite(dto);
   }
 
   async findRoomByToken(token: string): Promise<IInvite> {
-    return await this.inviteRepository.findRoomByToken(token);
+    return this.inviteRepository.findRoomByToken(token);
   }
 }

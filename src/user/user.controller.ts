@@ -8,16 +8,16 @@ export class UserController {
 
   @Get('all')
   async getAllUsers(): Promise<IUser[]> {
-    return await this.userService.getAllUsers();
+    return this.userService.getAllUsers();
   }
 
   @Get(':Id')
   async findUserById(@Param('Id') Id: string): Promise<IUser> {
-    return await this.userService.findUserById(Id);
+    return this.userService.findUserById(Id);
   }
 
   @Delete(':Id')
   async deleteUserById(@Param('Id') Id: string): Promise<IUser> {
-    return await this.userService.deleteUserById(Id);
+    return this.userService.deleteUserById(Id);
   }
 }

@@ -23,22 +23,22 @@ export class MessageService {
       }));
     }
 
-    return await this.messageRepository.createMessage(dto, filesInput);
+    return this.messageRepository.createMessage(dto, filesInput);
   }
 
   async getAllMessagesByRoom(id: string): Promise<IMessage[]> {
-    return await this.messageRepository.getAllMessages(id);
+    return this.messageRepository.getAllMessages(id);
   }
 
   async findMessageById(id: string): Promise<IMessage> {
-    return await this.messageRepository.findMessageById(id);
+    return this.messageRepository.findMessageById(id);
   }
 
   async deleteMessage(id: string): Promise<IMessage> {
-    return await this.messageRepository.deleteMessage(id);
+    return this.messageRepository.deleteMessage(id);
   }
 
   async editMessage(dto: MessageEditDto): Promise<IMessage> {
-    return await this.messageRepository.editMessage(dto);
+    return this.messageRepository.editMessage(dto);
   }
 }

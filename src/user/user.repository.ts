@@ -8,7 +8,7 @@ export class UserRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findUserById(Id: string): Promise<IUser> {
-    return await this.prismaService.user.findFirst({
+    return this.prismaService.user.findFirst({
       where: {
         id: Id,
       },
@@ -16,23 +16,23 @@ export class UserRepository {
   }
 
   async deleteUserById(Id: string): Promise<IUser> {
-    return await this.prismaService.user.delete({
+    return this.prismaService.user.delete({
       where: {
         id: Id,
       },
     });
   }
 
-  async getUserByName(username: string): Promise<IUser> {
-    return await this.prismaService.user.findFirst({
+  async getUserByName(username: string) {
+    return this.prismaService.user.findFirst({
       where: {
-        AND: { username },
+        AND: {username},
       },
     });
   }
 
   async createUser(dto: RegisterDto, hashedPassword: string): Promise<IUser> {
-    return await this.prismaService.user.create({
+    return this.prismaService.user.create({
       data: {
         username: dto.username,
         password: hashedPassword,
@@ -41,6 +41,6 @@ export class UserRepository {
   }
 
   async getAllUsers(): Promise<IUser[]> {
-    return await this.prismaService.user.findMany();
+    return this.prismaService.user.findMany();
   }
 }

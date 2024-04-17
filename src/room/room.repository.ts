@@ -9,7 +9,7 @@ export class RoomRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findRoomByName(name: string): Promise<IRoom> {
-    return await this.prismaService.room.findFirst({
+    return this.prismaService.room.findFirst({
       where: {
         name,
       },
@@ -17,7 +17,7 @@ export class RoomRepository {
   }
 
   async createRoom(dto: RoomCreateDto): Promise<IRoom> {
-    return await this.prismaService.room.create({
+    return this.prismaService.room.create({
       data: {
         name: dto.name,
         ownerId: dto.ownerId,
@@ -32,7 +32,7 @@ export class RoomRepository {
   }
 
   async findRoomById(id: string): Promise<IRoom> {
-    return await this.prismaService.room.findFirst({
+    return this.prismaService.room.findFirst({
       where: {
         id,
       },
@@ -43,7 +43,7 @@ export class RoomRepository {
   }
 
   async deleteRoom(id: string): Promise<IRoom> {
-    return await this.prismaService.room.delete({
+    return this.prismaService.room.delete({
       where: {
         id,
       },
@@ -51,7 +51,7 @@ export class RoomRepository {
   }
 
   async getAllRooms(): Promise<IAllRooms[]> {
-    return await this.prismaService.room.findMany({
+    return this.prismaService.room.findMany({
       include: {
         users: true,
         messages: {
@@ -64,7 +64,7 @@ export class RoomRepository {
   }
 
   async addUserToRoom(roomId: string, userId: string): Promise<IRoom> {
-    return await this.prismaService.room.update({
+    return this.prismaService.room.update({
       where: {
         id: roomId,
       },
@@ -79,7 +79,7 @@ export class RoomRepository {
   }
 
   async addInviteLink(inviteLink: string, roomId: string): Promise<IRoom> {
-    return await this.prismaService.room.update({
+    return this.prismaService.room.update({
       where: {
         id: roomId,
       },
@@ -90,7 +90,7 @@ export class RoomRepository {
   }
 
   async leaveRoom(roomId: string, userId: string): Promise<IRoom> {
-    return await this.prismaService.room.update({
+    return this.prismaService.room.update({
       where: {
         id: roomId,
       },
@@ -105,7 +105,7 @@ export class RoomRepository {
   }
 
   async createPersonal(dto: RoomCreateDto): Promise<IRoom> {
-    return await this.prismaService.room.create({
+    return this.prismaService.room.create({
       data: {
         name: dto.name,
         isPersonal: true,

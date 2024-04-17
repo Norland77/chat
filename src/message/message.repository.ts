@@ -9,7 +9,7 @@ import {MessageEditDto} from "./dto/message-edit.dto";
 export class MessageRepository {
   constructor(private readonly prismaService: PrismaService) {}
   async createMessage(dto: MessageDto, filesInput: IFile[]): Promise<IMessage> {
-    return await this.prismaService.messages.create({
+    return this.prismaService.messages.create({
       data: {
         text: dto.text,
         userId: dto.userId,
@@ -26,7 +26,7 @@ export class MessageRepository {
   }
 
   async getAllMessages(id: string): Promise<IMessage[]> {
-    return await this.prismaService.messages.findMany({
+    return this.prismaService.messages.findMany({
       where: {
         roomId: id,
       },
@@ -40,7 +40,7 @@ export class MessageRepository {
   }
 
   async findMessageById(id: string): Promise<IMessage> {
-    return await this.prismaService.messages.findFirst({
+    return this.prismaService.messages.findFirst({
       where: {
         id,
       },
@@ -48,7 +48,7 @@ export class MessageRepository {
   }
 
   async deleteMessage(id: string): Promise<IMessage> {
-    return await this.prismaService.messages.delete({
+    return this.prismaService.messages.delete({
       where: {
         id,
       },
@@ -59,7 +59,7 @@ export class MessageRepository {
   }
 
   async editMessage(dto: MessageEditDto): Promise<IMessage> {
-    return await this.prismaService.messages.update({
+    return this.prismaService.messages.update({
       where: {
         id: dto.id,
       },

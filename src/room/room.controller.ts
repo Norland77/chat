@@ -27,7 +27,7 @@ export class RoomController {
       );
     }
 
-    return await this.roomService.createRoom(dto);
+    return this.roomService.createRoom(dto);
   }
 
   @Delete('delete/:Id')
@@ -38,12 +38,12 @@ export class RoomController {
       throw new BadRequestException(`room with id: ${id} is not exist`);
     }
 
-    return await this.roomService.deleteRoom(id);
+    return this.roomService.deleteRoom(id);
   }
 
   @Get('all')
   async getAllRooms(): Promise<IAllRooms[]> {
-    return await this.roomService.getAllRooms();
+    return this.roomService.getAllRooms();
   }
 
   @Get('/:Id')
@@ -67,11 +67,11 @@ export class RoomController {
       throw new BadRequestException(`room with id: ${roomId} is not exist`);
     }
 
-    return await this.roomService.leaveRoom(roomId, userId.userId);
+    return this.roomService.leaveRoom(roomId, userId.userId);
   }
 
   @Post('create/personal')
   async createPersonal(@Body() dto: RoomCreateDto): Promise<IRoom> {
-    return await this.roomService.createPersonal(dto);
+    return this.roomService.createPersonal(dto);
   }
 }

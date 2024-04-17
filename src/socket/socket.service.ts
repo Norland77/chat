@@ -40,7 +40,7 @@ export class SocketService implements OnGatewayInit {
   async uploadPublicFile(dataBuffer: Buffer, filename: string, userId: string, filetype): Promise<S3.ManagedUpload.SendData> {
     const s3 = new S3();
 
-    return await s3
+    return s3
       .upload({
         Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
         Body: dataBuffer,

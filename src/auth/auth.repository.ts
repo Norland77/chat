@@ -31,7 +31,7 @@ export class AuthRepository {
     if (user) {
       throw new BadRequestException('This username or email is already in use');
     }
-    return await this.userService.createUser(dto).catch((err) => {
+    return this.userService.createUser(dto).catch((err) => {
       this.logger.error(err);
       return null;
     });
@@ -48,11 +48,11 @@ export class AuthRepository {
     if (!user || !compareSync(dto.password, user.password)) {
       throw new UnauthorizedException('Wrong login or password');
     }
-    return await this.generateTokens(user);
+    return this.generateTokens(user);
   }
 
   async logout(refreshtoken: string): Promise<ITokenLogout> {
-    return await this.prismaService.token.delete({
+    return this.prismaService.token.delete({
       where: { token: refreshtoken },
     });
   }
@@ -75,7 +75,7 @@ export class AuthRepository {
     if (!user) {
       throw new UnauthorizedException();
     }
-    return await this.generateTokens(user);
+    return this.generateTokens(user);
   }
 
   private async generateTokens(user: IUser): Promise<IToken> {
@@ -96,7 +96,7 @@ export class AuthRepository {
       },
     });
     const token = _token?.token ?? '';
-    return await this.prismaService.token.upsert({
+    return this.prismaService.token.upsert({
       where: { token },
       update: {
         token: v4(),

@@ -25,7 +25,7 @@ export class MessageController {
       throw new BadRequestException(`room with id: ${id} is not exist`);
     }
 
-    return await this.messageService.getAllMessagesByRoom(id);
+    return this.messageService.getAllMessagesByRoom(id);
   }
 
   @Delete('delete/:Id')
@@ -36,6 +36,6 @@ export class MessageController {
       throw new BadRequestException(`message with id: ${id} is not exist`);
     }
 
-    return await this.messageService.deleteMessage(id);
+    return this.messageService.deleteMessage(id);
   }
 }

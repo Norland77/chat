@@ -10,18 +10,18 @@ export class AuthService {
   constructor(private readonly authRepository: AuthRepository) {}
 
   async register(dto: RegisterDto): Promise<IUser> {
-    return await this.authRepository.register(dto);
+    return this.authRepository.register(dto);
   }
 
   async login(dto: LoginDto): Promise<IToken> {
-    return await this.authRepository.login(dto);
+    return this.authRepository.login(dto);
   }
 
-  async refreshtoken(refreshtoken: string): Promise<IToken> {
-    return await this.authRepository.refreshtoken(refreshtoken);
+  async refreshtoken(refreshToken: string): Promise<IToken> {
+    return this.authRepository.refreshtoken(refreshToken);
   }
 
   async logout(refreshtoken: string): Promise<ITokenLogout> {
-    return await this.authRepository.logout(refreshtoken);
+    return this.authRepository.logout(refreshtoken);
   }
 }

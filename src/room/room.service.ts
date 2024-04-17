@@ -9,38 +9,38 @@ export class RoomService {
   constructor(private readonly roomRepository: RoomRepository) {}
 
   async findRoomByName(name: string): Promise<IRoom> {
-    return await this.roomRepository.findRoomByName(name);
+    return this.roomRepository.findRoomByName(name);
   }
 
   async createRoom(dto: RoomCreateDto): Promise<IRoom> {
-    return await this.roomRepository.createRoom(dto);
+    return this.roomRepository.createRoom(dto);
   }
 
   async findRoomById(id: string): Promise<IRoom> {
-    return await this.roomRepository.findRoomById(id);
+    return this.roomRepository.findRoomById(id);
   }
 
   async deleteRoom(id: string): Promise<IRoom> {
-    return await this.roomRepository.deleteRoom(id);
+    return this.roomRepository.deleteRoom(id);
   }
 
   async getAllRooms(): Promise<IAllRooms[]> {
-    return await this.roomRepository.getAllRooms();
+    return this.roomRepository.getAllRooms();
   }
 
   async addUserToRoom(roomId: string, userId: string): Promise<IRoom> {
-    return await this.roomRepository.addUserToRoom(roomId, userId);
+    return this.roomRepository.addUserToRoom(roomId, userId);
   }
 
   async addInviteLink(inviteLink: string, roomId: string): Promise<IRoom> {
-    return await this.roomRepository.addInviteLink(inviteLink, roomId);
+    return this.roomRepository.addInviteLink(inviteLink, roomId);
   }
 
   async leaveRoom(roomId: string, userId: string): Promise<IRoom> {
-    return await this.roomRepository.leaveRoom(roomId, userId);
+    return this.roomRepository.leaveRoom(roomId, userId);
   }
 
   async createPersonal(dto: RoomCreateDto): Promise<IRoom> {
-    return await this.roomRepository.createPersonal(dto);
+    return this.roomRepository.createPersonal(dto);
   }
 }

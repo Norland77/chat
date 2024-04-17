@@ -8,7 +8,7 @@ export class InviteRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findInviteByRoom(roomId: string): Promise<IInvite> {
-    return await this.prismaService.inviteList.findFirst({
+    return this.prismaService.inviteList.findFirst({
       where: {
         roomId,
       },
@@ -16,7 +16,7 @@ export class InviteRepository {
   }
 
   async createInvite(dto: InviteDto): Promise<IInvite> {
-    return await this.prismaService.inviteList.create({
+    return this.prismaService.inviteList.create({
       data: {
         roomId: dto.roomId,
         accept: dto.accept,
@@ -26,7 +26,7 @@ export class InviteRepository {
   }
 
   async findRoomByToken(token: string): Promise<IInvite> {
-    return await this.prismaService.inviteList.findFirst({
+    return this.prismaService.inviteList.findFirst({
       where: {
         token,
       },
