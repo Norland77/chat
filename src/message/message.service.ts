@@ -46,4 +46,8 @@ export class MessageService implements IMessageService{
   async editMessage(dto: MessageEditDto): Promise<IMessage> {
     return this.messageRepository.editMessage(dto);
   }
+
+  getAllImagesByRoom(id: string): Promise<IFile[]> {
+    return this.messageRepository.getAllImagesByRoom(id);
+  }
 }

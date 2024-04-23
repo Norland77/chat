@@ -69,4 +69,22 @@ export class MessageRepository implements IMessageRepository{
       },
     });
   }
+
+  getAllImagesByRoom(id: string): Promise<IFile[]> {
+    return this.prismaService.file.findMany({
+      where: {
+        Messages: {
+          roomId: id,
+        },
+        OR: [
+          {
+            mimetype: 'image/jpeg'
+          },
+          {
+            mimetype: 'image/png'
+          }
+        ]
+      }
+    })
+  }
 }

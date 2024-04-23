@@ -1,4 +1,5 @@
 import {LoginDto, RegisterDto} from "../dto";
+import {Response} from 'express';
 import {IUser} from "./IUser";
 import {ITokens} from "./ITokens";
 import {IToken} from "./IToken";

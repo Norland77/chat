@@ -45,4 +45,12 @@ export interface IMessageService {
    * @returns {Promise<IMessage>} A promise resolving to the updated message object.
    */
   editMessage(dto: MessageEditDto): Promise<IMessage>;
+
+  /**
+   * Find an images by room`s ID.
+   *
+   * @param id - The room`s ID.
+   * @returns {Promise<IFIle[]>} A promise resolving to the array finds images object.
+   */
+  getAllImagesByRoom(id: string): Promise<IFile[]>;
 }
