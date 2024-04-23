@@ -3,6 +3,7 @@ import { UserRepository } from './user.repository';
 import { RegisterDto } from '../auth/dto';
 import { genSaltSync, hash } from 'bcrypt';
 import {IUser} from "./interfaces/IUser";
+import { UserEditDto } from "./dto/user-edit.dto";
 
 @Injectable()
 export class UserService {
@@ -56,5 +57,9 @@ export class UserService {
     }
 
     return user
+  }
+
+  async editUserById(id: string, dto: UserEditDto) {
+    return this.userRepository.editUserById(id, dto);
   }
 }

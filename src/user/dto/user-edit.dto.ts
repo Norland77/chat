@@ -1,7 +1,5 @@
-export interface IUser {
-  id: string;
-  username: string;
-  password: string;
+
+export class UserEditDto {
   phone_number?: string;
   email?: string;
   description?: string;

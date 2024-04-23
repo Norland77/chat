@@ -3,6 +3,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import { RegisterDto } from '../auth/dto';
 import {IUser} from "./interfaces/IUser";
 import {IUserRepository} from "./interfaces/user.repository.interface";
+import { UserEditDto } from "./dto/user-edit.dto";
 
 @Controller('user')
 export class UserRepository implements IUserRepository{
@@ -43,5 +44,19 @@ export class UserRepository implements IUserRepository{
 
   async getAllUsers(): Promise<IUser[] | []> {
     return this.prismaService.user.findMany();
+  }
+
+  async editUserById(id: string, dto: UserEditDto) {
+    return this.prismaService.user.update({
+      where: {
+        id
+      },
+      data: {
+        email: dto.email,
+        phone_number: dto.phone_number,
+        description: dto.description,
+        avatar_url: dto.avatar_url,
+      },
+    },)
   }
 }

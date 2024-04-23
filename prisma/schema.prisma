@@ -8,12 +8,16 @@ datasource db {
 }
 
 model User {
-  id       String     @id @default(uuid())
-  username String     @unique
-  password String
-  token    Token[]
-  messages Messages[]
-  Room     Room[]
+  id           String     @id @default(uuid())
+  username     String     @unique
+  password     String
+  phone_number String?
+  email        String?
+  description  String?
+  avatar_url   String?
+  token        Token[]
+  messages     Messages[]
+  Room         Room[]
 }
 
 model Room {
