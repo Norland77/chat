@@ -47,7 +47,19 @@ export class MessageService implements IMessageService{
     return this.messageRepository.editMessage(dto);
   }
 
-  getAllImagesByRoom(id: string): Promise<IFile[]> {
+  async getAllImagesByRoom(id: string): Promise<IFile[]> {
     return this.messageRepository.getAllImagesByRoom(id);
+  }
+
+  async uploadAvatar(file: IFile) {
+    return this.messageRepository.uploadAvatar(file);
+  }
+
+  async findFileByPath(path: string) {
+    return this.messageRepository.findFileByPath(path);
+  }
+
+  async deleteFileById(id: string) {
+    return this.messageRepository.deleteFileById(id);
   }
 }

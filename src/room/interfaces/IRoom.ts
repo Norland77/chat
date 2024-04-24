@@ -7,5 +7,7 @@ export interface IRoom {
   isPrivate: boolean;
   isPersonal: boolean;
   inviteLink: string;
+  firstUserId?: string;
+  secondUserId?: string;
   users?: IUser[];
 }

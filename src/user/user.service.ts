@@ -62,4 +62,8 @@ export class UserService {
   async editUserById(id: string, dto: UserEditDto) {
     return this.userRepository.editUserById(id, dto);
   }
+
+  async setAvatarById(id: string, avatar_url: string) {
+    return this.userRepository.setAvatarById(id, avatar_url);
+  }
 }

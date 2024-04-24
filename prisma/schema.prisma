@@ -21,15 +21,17 @@ model User {
 }
 
 model Room {
-  id         String       @id @default(uuid())
-  name       String       @unique
-  messages   Messages[]
-  users      User[]
-  ownerId    String       @default("")
-  isPrivate  Boolean      @default(false)
-  isPersonal Boolean      @default(false)
-  InviteList InviteList[]
-  inviteLink String       @default("")
+  id           String       @id @default(uuid())
+  name         String       @unique
+  messages     Messages[]
+  users        User[]
+  ownerId      String       @default("")
+  isPrivate    Boolean      @default(false)
+  isPersonal   Boolean      @default(false)
+  InviteList   InviteList[]
+  inviteLink   String       @default("")
+  firstUserId  String?
+  secondUserId String?
 }
 
 model InviteList {

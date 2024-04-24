@@ -87,4 +87,30 @@ export class MessageRepository implements IMessageRepository{
       }
     })
   }
+
+  async uploadAvatar(file: IFile) {
+    return this.prismaService.file.create({
+      data: {
+        mimetype: file.mimetype,
+        path: file.path,
+        name: file.name
+      }
+    })
+  }
+
+  async findFileByPath(path: string) {
+    return this.prismaService.file.findFirst({
+      where: {
+        path
+      }
+    })
+  }
+
+  async deleteFileById(id: string) {
+    return this.prismaService.file.delete({
+      where: {
+        id,
+      }
+    })
+  }
 }

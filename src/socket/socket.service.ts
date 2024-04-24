@@ -15,6 +15,9 @@ import {IMessage} from "../message/interfaces/IMessage";
 import {IFile} from "../message/interfaces/IFile";
 import {MessageDeleteDto} from "../message/dto/message-delete.dto";
 import {DefaultEventsMap} from "socket.io/dist/typed-events";
+import { IAvatarEdit } from "./interfaces/IAvatarEdit";
+import { UserService } from "../user/user.service";
+import {v4} from 'uuid'
 
 let fullChunk: Buffer = Buffer.alloc(0);
 
@@ -22,6 +25,7 @@ let fullChunk: Buffer = Buffer.alloc(0);
 export class SocketService implements OnGatewayInit {
   constructor(
     private readonly messageService: MessageService,
+    private readonly userService: UserService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -44,11 +48,10 @@ export class SocketService implements OnGatewayInit {
       .upload({
         Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
         Body: dataBuffer,
-        Key: `${userId}/${filetype}/${filename}`,
+        Key: `${userId}/${filetype}/${filename}${v4()}`,
       })
       .promise();
   }
-
   @SubscribeMessage('chatToServer')
   async handleMessage(
     @ConnectedSocket() client: Socket,
@@ -78,6 +81,40 @@ export class SocketService implements OnGatewayInit {
     console.log(createdMessage);
     fullChunk = Buffer.alloc(0);
     this.wss.to(message.roomId).emit('chatToClient', createdMessage);
+  }
+
+  @SubscribeMessage('chatToServerSetAvatar')
+  async handleSetAvatar(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: IAvatarEdit,
+  ) {
+    if (data.file) {
+      const uploadResult: S3.ManagedUpload.SendData = await this.uploadPublicFile(
+        fullChunk,
+        data.file.name,
+        data.userId,
+        data.file.mimetype
+      );
+
+      const user = await this.userService.findUserById(data.userId);
+
+      if (user.avatar_url !== null) {
+        const s3: S3 = new S3();
+
+        const avatar = await this.messageService.findFileByPath(user.avatar_url);
+        await s3
+          .deleteObject({
+            Bucket: this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
+            Key: `${data.userId}/${avatar.mimetype}/${avatar.name}`,
+          })
+          .promise();
+
+        await this.messageService.deleteFileById(avatar.id);
+      }
+      await this.messageService.uploadAvatar({mimetype: data.file.mimetype, path: uploadResult.Location, name: data.file.name})
+      await this.userService.setAvatarById(data.userId, uploadResult.Location);
+    }
+    fullChunk = Buffer.alloc(0);
   }
 
   @SubscribeMessage('chatToServerDelete')

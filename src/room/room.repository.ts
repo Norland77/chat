@@ -114,6 +114,8 @@ export class RoomRepository implements IRoomRepository{
         users: {
           connect: [{ id: dto.firstUserId }, { id: dto.secondUserId }],
         },
+        firstUserId: dto.firstUserId,
+        secondUserId: dto.secondUserId,
       },
     });
   }

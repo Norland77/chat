@@ -55,8 +55,18 @@ export class UserRepository implements IUserRepository{
         email: dto.email,
         phone_number: dto.phone_number,
         description: dto.description,
-        avatar_url: dto.avatar_url,
       },
-    },)
+    })
+  }
+
+  async setAvatarById(id: string, avatar_url: string) {
+    return this.prismaService.user.update({
+      where: {
+        id,
+      },
+      data: {
+        avatar_url,
+      },
+    })
   }
 }
