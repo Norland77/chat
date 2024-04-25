@@ -4,4 +4,5 @@ export class RoomCreateDto {
   isPrivate: boolean;
   firstUserId?: string;
   secondUserId?: string;
+  avatar_url?: string;
 }

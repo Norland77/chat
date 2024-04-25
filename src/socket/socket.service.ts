@@ -18,6 +18,9 @@ import {DefaultEventsMap} from "socket.io/dist/typed-events";
 import { IAvatarEdit } from "./interfaces/IAvatarEdit";
 import { UserService } from "../user/user.service";
 import {v4} from 'uuid'
+import { RoomCreateDto } from "../room/dto/room-create.dto";
+import { IRoomCreate } from "./interfaces/IRoomCreate";
+import { RoomService } from "../room/room.service";
 
 let fullChunk: Buffer = Buffer.alloc(0);
 
@@ -26,6 +29,7 @@ export class SocketService implements OnGatewayInit {
   constructor(
     private readonly messageService: MessageService,
     private readonly userService: UserService,
+    private readonly roomService: RoomService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -113,6 +117,30 @@ export class SocketService implements OnGatewayInit {
       }
       await this.messageService.uploadAvatar({mimetype: data.file.mimetype, path: uploadResult.Location, name: data.file.name})
       await this.userService.setAvatarById(data.userId, uploadResult.Location);
+    }
+    fullChunk = Buffer.alloc(0);
+  }
+
+  @SubscribeMessage('chatToServerCreateChat')
+  async handleCreateChat(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: IRoomCreate,
+  ) {
+    if (data.file) {
+      const uploadResult: S3.ManagedUpload.SendData = await this.uploadPublicFile(
+        fullChunk,
+        data.file.name,
+        data.userId,
+        data.file.mimetype
+      );
+
+      await this.messageService.uploadAvatar({mimetype: data.file.mimetype, path: uploadResult.Location, name: data.file.name})
+      await this.roomService.createRoom({
+        name: data.name,
+        ownerId: data.userId,
+        avatar_url: uploadResult.Location,
+        isPrivate: data.isPrivate,
+      });
     }
     fullChunk = Buffer.alloc(0);
   }

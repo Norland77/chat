@@ -9,5 +9,6 @@ export interface IRoom {
   inviteLink: string;
   firstUserId?: string;
   secondUserId?: string;
+  avatar_url?: string;
   users?: IUser[];
 }

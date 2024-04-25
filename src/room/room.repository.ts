@@ -28,6 +28,7 @@ export class RoomRepository implements IRoomRepository{
             id: dto.ownerId,
           },
         },
+        avatar_url: dto.avatar_url,
       },
     });
   }

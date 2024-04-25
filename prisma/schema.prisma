@@ -32,6 +32,7 @@ model Room {
   inviteLink   String       @default("")
   firstUserId  String?
   secondUserId String?
+  avatar_url   String?
 }
 
 model InviteList {
