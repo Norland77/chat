@@ -141,6 +141,12 @@ export class SocketService implements OnGatewayInit {
         avatar_url: uploadResult.Location,
         isPrivate: data.isPrivate,
       });
+    } else {
+      await this.roomService.createRoom({
+        name: data.name,
+        ownerId: data.userId,
+        isPrivate: data.isPrivate,
+      });
     }
     fullChunk = Buffer.alloc(0);
   }

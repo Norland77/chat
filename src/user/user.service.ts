@@ -22,14 +22,20 @@ export class UserService {
     return this.userRepository.deleteUserById(Id);
   }
 
-  async getUserByName(username: string): Promise<IUser> {
+  async getUserByName(username: string, type?: string): Promise<IUser> {
     const user: IUser | null = await this.userRepository.getUserByName(username);
 
-    if (!user) {
-      throw new BadRequestException(`not found user with name: ${username}`)
+    if (type === 'login') {
+      if (!user) {
+        throw new BadRequestException(`not found user with name: ${username}`)
+      }
+      return  user;
+    } else if (type === 'reg') {
+      if (user) {
+        throw new BadRequestException(`user with username: ${username} is already exist`)
+      }
+      return  user;
     }
-
-    return  user;
   }
 
   async createUser(dto: RegisterDto): Promise<IUser> {
