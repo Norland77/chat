@@ -1,4 +1,5 @@
 import {IFile} from "./IFile";
+import { IUser } from "../../user/interfaces/IUser";
 
 export interface IMessage {
   id: string;
@@ -9,4 +10,5 @@ export interface IMessage {
   createdAt: Date;
   updatedAt: Date;
   files?: IFile[]
+  User?: IUser
 }

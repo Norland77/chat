@@ -57,6 +57,9 @@ export class RoomRepository implements IRoomRepository{
       include: {
         users: true,
         messages: {
+          include: {
+            files: true,
+          },
           orderBy: {
             createdAt: 'asc',
           },

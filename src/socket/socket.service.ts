@@ -23,6 +23,7 @@ import { IRoomCreate } from "./interfaces/IRoomCreate";
 import { RoomService } from "../room/room.service";
 
 let fullChunk: Buffer = Buffer.alloc(0);
+let fullChunkArr: Buffer[] = [];
 
 @WebSocketGateway({ cors: { origin: '*' } })
 export class SocketService implements OnGatewayInit {
@@ -63,17 +64,21 @@ export class SocketService implements OnGatewayInit {
   ) {
     let results: IFile[] = [];
     if (message.files.length > 0) {
+      let index = 0;
+      console.log(fullChunkArr);
       for (const fileInfo of message.files) {
+        console.log(fullChunkArr[index]);
         const uploadResult: S3.ManagedUpload.SendData = await this.uploadPublicFile(
-          fullChunk,
+          fullChunkArr[index],
           fileInfo.name,
           message.userId,
           fileInfo.mimetype
         );
         results.push({ path: uploadResult.Location, name: fileInfo.name, mimetype: fileInfo.mimetype });
+        index++;
       }
     }
-
+    console.log(results);
     const createdMessage: IMessage = await this.messageService.createMessage({
       text: message.text,
       username: message.username,
@@ -81,9 +86,7 @@ export class SocketService implements OnGatewayInit {
       userId: message.userId,
       files: results,
     });
-
-    console.log(createdMessage);
-    fullChunk = Buffer.alloc(0);
+    fullChunkArr = [];
     this.wss.to(message.roomId).emit('chatToClient', createdMessage);
   }
 
@@ -227,7 +230,10 @@ export class SocketService implements OnGatewayInit {
 
   @SubscribeMessage('uploadChunk')
   async handleUploadChunk(@MessageBody() data: any): Promise<void> {
-    fullChunk = Buffer.concat([fullChunk, data]);
-    console.log(fullChunk);
+    fullChunk = Buffer.concat([fullChunk, data[0]]);
+    if (data[1] === true) {
+      fullChunkArr.push(fullChunk);
+      fullChunk = Buffer.alloc(0);
+    }
   }
 }

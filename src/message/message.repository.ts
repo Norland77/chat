@@ -36,6 +36,7 @@ export class MessageRepository implements IMessageRepository{
       },
       include: {
         files: true,
+        User: true,
       },
     });
   }
