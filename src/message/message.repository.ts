@@ -85,6 +85,9 @@ export class MessageRepository implements IMessageRepository{
             mimetype: 'image/png'
           }
         ]
+      },
+      orderBy: {
+        createdAt: 'desc'
       }
     })
   }
