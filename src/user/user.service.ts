@@ -22,8 +22,8 @@ export class UserService {
     return this.userRepository.deleteUserById(Id);
   }
 
-  async getUserByName(username: string, type?: string): Promise<IUser> {
-    const user: IUser | null = await this.userRepository.getUserByName(username);
+  async getUserByName(username: string, email: string, type?: string): Promise<IUser> {
+    const user: IUser | null = await this.userRepository.getUserByName(username, email);
 
     if (type === 'login') {
       if (!user) {
@@ -71,5 +71,15 @@ export class UserService {
 
   async setAvatarById(id: string, avatar_url: string) {
     return this.userRepository.setAvatarById(id, avatar_url);
+  }
+
+  async getUserByEmail(email: string) {
+    const user = await this.userRepository.getUserByEmail(email);
+
+    if (!user) {
+      throw new BadRequestException(`user with email: ${email} is not exist`);
+    }
+
+    return user;
   }
 }

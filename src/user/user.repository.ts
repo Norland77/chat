@@ -25,10 +25,10 @@ export class UserRepository implements IUserRepository{
     });
   }
 
-  async getUserByName(username: string): Promise<IUser | null> {
+  async getUserByName(username: string, email: string): Promise<IUser | null> {
     return this.prismaService.user.findFirst({
       where: {
-        AND: {username},
+        AND: {username, email},
       },
     });
   }
@@ -37,6 +37,7 @@ export class UserRepository implements IUserRepository{
     return this.prismaService.user.create({
       data: {
         username: dto.username,
+        email: dto.email,
         password: hashedPassword,
       },
     });
@@ -67,6 +68,14 @@ export class UserRepository implements IUserRepository{
       data: {
         avatar_url,
       },
+    })
+  }
+
+  async getUserByEmail(email: string) {
+    return this.prismaService.user.findFirst({
+      where: {
+        email,
+      }
     })
   }
 }

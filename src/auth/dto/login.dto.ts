@@ -2,7 +2,7 @@ import { IsEmail, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
   @IsEmail()
-  username: string;
+  email: string;
 
   @IsString()
   @MinLength(8)

@@ -35,7 +35,7 @@ export class AuthController implements IAuthController{
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('register')
   async register(@Body() dto: RegisterDto): Promise<IUser> {
-    const userName = await this.userService.getUserByName(dto.username);
+    const userName = await this.userService.getUserByName(dto.username, dto.email);
 
     if (userName) {
       throw new BadRequestException('This username or email is already in use');
@@ -47,7 +47,7 @@ export class AuthController implements IAuthController{
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
   async login(@Body() dto: LoginDto, @Res() res: Response): Promise<ITokens> {
-    const user = await this.userService.getUserByName(dto.username)
+    const user = await this.userService.getUserByEmail(dto.email)
 
     if (!user || !compareSync(dto.password, user.password)) {
       throw new UnauthorizedException('Wrong login or password');

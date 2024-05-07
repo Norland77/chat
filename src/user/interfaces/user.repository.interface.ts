@@ -24,7 +24,7 @@ export interface IUserRepository {
    * @param username - The user's username.
    * @returns {Promise<IUser | null>} A promise resolving to the user object if found, otherwise null.
    */
-  getUserByName(username: string): Promise<IUser | null>;
+  getUserByName(username: string, email: string): Promise<IUser | null>;
 
   /**
    * Creates a new user.
