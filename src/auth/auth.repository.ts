@@ -48,4 +48,32 @@ export class AuthRepository implements IAuthRepository{
       },
     });
   }
+
+  async createConfirmCode(email: string, code: string) {
+    return this.prismaService.confirmationCodes.create({
+      data: {
+        email,
+        code,
+      }
+    });
+  }
+
+  findCodeByEmail(email: string) {
+    return this.prismaService.confirmationCodes.findFirst({
+      where: {
+        email,
+      }
+    })
+  }
+
+  updateCodeById(id: string, code: string) {
+    return this.prismaService.confirmationCodes.update({
+      where: {
+        id,
+      },
+      data: {
+        code,
+      }
+    })
+  }
 }

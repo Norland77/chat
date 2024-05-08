@@ -78,4 +78,16 @@ export class AuthService implements IAuthService{
 
     return { accessToken, refreshToken };
   }
+
+  async createConfirmCode(email: string, code: string) {
+    return this.authRepository.createConfirmCode(email, code);
+  }
+
+  async findCodeByEmail(email: string) {
+    return this.authRepository.findCodeByEmail(email);
+  }
+
+  async updateCodeById(id: string, code: string) {
+    return this.authRepository.updateCodeById(id, code);
+  }
 }

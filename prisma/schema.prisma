@@ -72,3 +72,9 @@ model File {
   Messages   Messages? @relation(fields: [messagesId], references: [id], onDelete: Cascade)
   messagesId String?
 }
+
+model ConfirmationCodes {
+  id    String @id @default(uuid())
+  email String
+  code  String
+}
