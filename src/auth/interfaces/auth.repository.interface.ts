@@ -31,5 +31,5 @@ export interface IAuthRepository {
    * @param userId - The ID of the user for whom the refresh token is needed.
    * @returns {Promise<IToken>} A promise resolving to the updated or newly created token object.
    */
-  getRefreshToken(userId: string): Promise<IToken>;
+  getRefreshToken(userId: string, userAgent: string): Promise<IToken>;
 }

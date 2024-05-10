@@ -53,13 +53,13 @@ export class AuthService implements IAuthService{
     res.status(HttpStatus.CREATED).json({ accessToken: tokens.accessToken });
   }
 
-  async login(user: IUser): Promise<ITokens> {
+  async login(user: IUser, userAgent: string): Promise<ITokens> {
     const accessToken = this.jwtService.sign({
       id: user.id,
       username: user.username,
     });
 
-    const refreshToken = await this.authRepository.getRefreshToken(user.id);
+    const refreshToken = await this.authRepository.getRefreshToken(user.id, userAgent);
 
     if (!refreshToken || !accessToken) {
       throw new BadRequestException(
@@ -89,5 +89,27 @@ export class AuthService implements IAuthService{
 
   async updateCodeById(id: string, code: string) {
     return this.authRepository.updateCodeById(id, code);
+  }
+
+  async getAllAccountByAgent(userAgent: string) {
+    return this.authRepository.getAllAccountByAgent(userAgent);
+  }
+
+  async findTokenByAgent(userAgent: string, userId: string, isDelete?: boolean) {
+    const token = await this.authRepository.findTokenByAgent(userAgent, userId);
+
+    if (!token) {
+      throw new BadRequestException()
+    }
+
+    if (new Date(token.exp) < new Date() && !isDelete) {
+      throw new UnauthorizedException()
+    }
+
+    return token;
+  }
+
+  async deleteToken(token: string) {
+    return this.authRepository.deleteToken(token);
   }
 }

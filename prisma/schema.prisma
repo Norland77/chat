@@ -44,10 +44,11 @@ model InviteList {
 }
 
 model Token {
-  token  String   @unique
-  exp    DateTime
-  user   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String
+  token     String   @unique
+  exp       DateTime
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  userAgent String
 }
 
 model Messages {

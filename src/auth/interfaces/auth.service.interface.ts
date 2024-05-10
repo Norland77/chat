@@ -36,7 +36,7 @@ export interface IAuthService {
    * @throws {BadRequestException} - Thrown if token generation fails.
    * @returns {Promise<ITokens>} A promise resolving to an object containing both access and refresh tokens.
    */
-  login(user: IUser): Promise<ITokens>;
+  login(user: IUser, userAgent: string): Promise<ITokens>;
 
   /**
    * Refreshes an access token using a refresh token (potentially for a specific user, implementation detail).

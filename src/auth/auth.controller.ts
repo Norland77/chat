@@ -4,17 +4,17 @@ import {
   ClassSerializerInterceptor,
   Controller,
   Get,
-  HttpStatus,
-  Post,
+  HttpStatus, Param,
+  Post, Req,
   Res,
   UnauthorizedException,
-  UseInterceptors,
-} from '@nestjs/common';
+  UseInterceptors
+} from "@nestjs/common";
 import {AuthService} from './auth.service';
 import {LoginDto, RegisterDto} from './dto';
 import {ITokens} from './interfaces';
 import {ConfigService} from '@nestjs/config';
-import {Response} from 'express';
+import { Request, Response } from "express";
 import {Cookie, Public} from '../../libs/common/src/decorators';
 import {IUser} from "../user/interfaces/IUser";
 import {UserService} from "../user/user.service";
@@ -130,14 +130,14 @@ export class AuthController implements IAuthController{
 
   @UseInterceptors(ClassSerializerInterceptor)
   @Post('login')
-  async login(@Body() dto: LoginDto, @Res() res: Response): Promise<ITokens> {
+  async login(@Body() dto: LoginDto, @Res() res: Response, @Req() req: Request): Promise<ITokens> {
     const user = await this.userService.getUserByEmail(dto.email)
 
     if (!user || !compareSync(dto.password, user.password)) {
       throw new UnauthorizedException('Wrong login or password');
     }
-
-    const token: ITokens = await this.authService.login(user);
+    const userAgent = req.headers['user-agent'];
+    const token: ITokens = await this.authService.login(user, userAgent);
 
     await this.authService.setRefreshTokenToCookies(token, res);
 
@@ -153,7 +153,7 @@ export class AuthController implements IAuthController{
       res.sendStatus(HttpStatus.OK);
       return;
     }
-    await this.authService.logout(refreshToken);
+    //await this.authService.logout(refreshToken);
     res.cookie(this.configService.get('REFRESH_TOKEN'), '', {
       httpOnly: true,
       secure: true,
@@ -177,5 +177,36 @@ export class AuthController implements IAuthController{
     await this.authService.setRefreshTokenToCookies(tokenToCookies, res);
 
     return token;
+  }
+
+  @Get('all-account')
+  async getAllAccountByAgent(@Req() req: Request) {
+    const userAgent = req.headers['user-agent'];
+
+    return this.authService.getAllAccountByAgent(userAgent);
+  }
+
+  @Post('login-userAgent/:Id')
+  async loginUserAgent(@Res() res: Response, @Req() req: Request, @Param('Id') userId: string) {
+    const userAgent = req.headers['user-agent'];
+
+    const token = await this.authService.findTokenByAgent(userAgent, userId);
+
+    const user = await this.userService.findUserById(userId);
+
+    const tokenToCookies = await this.authService.refresh(user, token)
+
+    await this.authService.setRefreshTokenToCookies(tokenToCookies, res);
+
+    return token;
+  }
+
+  @Post('delete-saved-account/:Id')
+  async deleteSavedAccount(@Req() req: Request, @Param('Id') userId: string) {
+    const userAgent = req.headers['user-agent'];
+
+    const token = await this.authService.findTokenByAgent(userAgent, userId, true);
+
+    return this.authService.deleteToken(token.token);
   }
 }

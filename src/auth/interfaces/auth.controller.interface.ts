@@ -1,5 +1,5 @@
 import {LoginDto, RegisterDto} from "../dto";
-import {Response} from 'express';
+import { Request, Response } from "express";
 import {IUser} from "./IUser";
 import {ITokens} from "./ITokens";
 import {IToken} from "./IToken";
@@ -19,10 +19,11 @@ export interface IAuthController {
    *
    * @param dto - A DTO containing login credentials (username, password).
    * @param res - The Express response object used for setting cookies.
+   * @param req
    * @throws {UnauthorizedException} - Thrown if the username or password is incorrect.
    * @returns {Promise<ITokens>} A promise resolving to an object containing both access and refresh tokens.
    */
-  login(dto: LoginDto, res: Response): Promise<ITokens>;
+  login(dto: LoginDto, res: Response, req: Request): Promise<ITokens>;
 
   /**
    * Logs out a user by deleting the refresh token stored in a cookie.

@@ -28,7 +28,7 @@ export class AuthRepository implements IAuthRepository{
     });
   }
 
-  async getRefreshToken(userId: string): Promise<Token> {
+  async getRefreshToken(userId: string, userAgent: string): Promise<Token> {
     const _token = await this.prismaService.token.findFirst({
       where: {
         userId,
@@ -36,7 +36,7 @@ export class AuthRepository implements IAuthRepository{
     });
     const token = _token?.token ?? '';
     return this.prismaService.token.upsert({
-      where: { token },
+      where: { token, userAgent },
       update: {
         token: v4(),
         exp: add(new Date(), { months: 1 }),
@@ -45,6 +45,7 @@ export class AuthRepository implements IAuthRepository{
         token: v4(),
         exp: add(new Date(), { months: 1 }),
         userId,
+        userAgent,
       },
     });
   }
@@ -58,7 +59,7 @@ export class AuthRepository implements IAuthRepository{
     });
   }
 
-  findCodeByEmail(email: string) {
+  async findCodeByEmail(email: string) {
     return this.prismaService.confirmationCodes.findFirst({
       where: {
         email,
@@ -66,13 +67,32 @@ export class AuthRepository implements IAuthRepository{
     })
   }
 
-  updateCodeById(id: string, code: string) {
+  async updateCodeById(id: string, code: string) {
     return this.prismaService.confirmationCodes.update({
       where: {
         id,
       },
       data: {
         code,
+      }
+    })
+  }
+
+  async getAllAccountByAgent(userAgent: string) {
+    return this.prismaService.token.findMany({
+      where: {
+        userAgent,
+      },
+      select: {
+        user: true,
+      }
+    })
+  }
+
+  async findTokenByAgent(userAgent: string, userId: string) {
+    return this.prismaService.token.findFirst({
+      where: {
+        AND: { userAgent, userId }
       }
     })
   }
